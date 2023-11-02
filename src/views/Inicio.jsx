@@ -14,6 +14,7 @@ export default function Inicio() {
   })
 
   if(isLoading) return 'Cargando...';
+  
   //valida si es la categoria igual al id y muestra los productos de la categoria actual
   const productos = data.data.filter(producto => producto.categoria_id === categoriaActual.id )
 

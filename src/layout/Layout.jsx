@@ -13,6 +13,7 @@ import useQuiosco from "../hooks/useQuiosco"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+import { useAuth  } from "../hooks/useAuth"
 
 //Estilos del modal
 const customStyles = {
@@ -31,9 +32,9 @@ Modal.setAppElement('#root')
 
 export default  function Layout() {
 
+  useAuth({middleware: 'auth'})
   //Hook
   const { modal } = useQuiosco()
-
 
   return (
     <>
