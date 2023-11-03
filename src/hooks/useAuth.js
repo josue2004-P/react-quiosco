@@ -1,24 +1,30 @@
-import { useEffect } from 'react';
+import { useState , useEffect } from 'react';
 import useSWR from 'swr'
 import clienteAxios from "../config/axios";
 import { useNavigate } from 'react-router-dom';
 
-export const useAuth = ({middleware,url}) =>{
+export const useAuth = ()=>{
 
-    const token = localStorage.getItem('AUTH_TOKEN')
-    const navigate = useNavigate()
+   const token = localStorage.getItem('AUTH_TOKEN')
+   const [loading,setLoading] = useState(true)
+   const navigate = useNavigate();
 
-    const { data: user, error, mutate} = useSWR('/api/user',() =>
-        clienteAxios('/api/user',{
-            headers: {
-                Authorization: `Bearer ${token}` 
-            }
-        })
-        .then(res => res.data)
-        .catch(error =>{
-            throw Error(error?.response?.data?.errors);
-        })
-    )
+   const fetcher = (url) => clienteAxios(url,{
+       headers: {
+           Authorization: `Bearer ${token}` 
+       }
+   }).then(res => res.data);
+
+   const { data: user, error, mutate} = useSWR('/api/user', fetcher);
+
+   useEffect(() => {
+       if (error) {
+           setLoading(false);
+       } else if (user) {
+           setLoading(false);
+       }
+   }, [user, error]);
+
 
     const login = async (datos,setErrores) => {
 
@@ -26,7 +32,9 @@ export const useAuth = ({middleware,url}) =>{
             const {data} = await clienteAxios.post('/api/login',datos)
             localStorage.setItem('AUTH_TOKEN',data.token);
             setErrores([])
-            await mutate()
+            await mutate()  
+            navigate('/');
+
           }catch(error){
             console.log(error)
             setErrores(Object.values(error.response.data.errors))
@@ -61,29 +69,13 @@ export const useAuth = ({middleware,url}) =>{
         }
     }
 
-    useEffect(() => {
-        if(middleware === 'guest' && url && user) {
-            navigate(url)
-        }
-
-        if(middleware === 'guest' && user && user.admin === 1) {
-            navigate('/admin');
-        }
-
-        if(middleware === 'admin' && user && user.admin === 0) {
-            navigate('/')
-        }
-
-        if(middleware === 'auth' && error) {
-            navigate('/auth/login')
-        }
-     }, [user, error]) 
 
     return {
         login,
         registro,
         logout,
         user,
-        error
+        error,
+        loading
     }
 }   

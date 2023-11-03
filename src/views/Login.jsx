@@ -2,19 +2,18 @@ import { Link } from "react-router-dom"
 import { createRef, useState } from "react"
 import { useAuth } from "../hooks/useAuth";
 import Alerta from "../components/Alerta";
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Login() {
 
   const emailRef = createRef();
   const passwordRef = createRef();
+  const navigate = useNavigate();
 
   const [errores,setErrores] = useState([]);
 
-  const { login } = useAuth({
-    middleware: 'guest',
-    url: '/'
-  })
+  const { login } = useAuth()
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -27,6 +26,8 @@ export default function Login() {
     }
 
     login(datos,setErrores)
+
+
 
 
   }
